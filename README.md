@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Budget App with Supabase
 
-## Getting Started
+A Next.js application integrated with Supabase for authentication and database management.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure Supabase:**
+   - Create a project at [supabase.com](https://supabase.com)
+   - Copy your project URL and anon key
+   - Update `.env.local` with your credentials:
+     ```
+     NEXT_PUBLIC_SUPABASE_URL=your-project-url
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+     ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open [http://localhost:3000](http://localhost:3000)**
+
+## Features
+
+- ✅ Supabase authentication (email/password)
+- ✅ Server-side and client-side Supabase clients
+- ✅ Protected routes with middleware
+- ✅ Login/Signup pages
+- ✅ Dashboard with user info
+- ✅ Logout functionality
+
+## Project Structure
+
+```
+├── app/
+│   ├── auth/login/          # Login page and actions
+│   ├── dashboard/           # Protected dashboard
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
+├── lib/
+│   └── supabase/
+│       ├── client.ts        # Browser client
+│       └── server.ts        # Server client
+├── middleware.ts            # Auth middleware
+└── .env.local              # Environment variables
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To add database functionality, create tables in your Supabase project:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sql
+-- Example: Create a budgets table
+create table budgets (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  name text not null,
+  amount decimal not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
 
-## Learn More
+-- Enable Row Level Security
+alter table budgets enable row level security;
 
-To learn more about Next.js, take a look at the following resources:
+-- Create policy for users to only see their own budgets
+create policy "Users can view their own budgets"
+  on budgets for select
+  using (auth.uid() = user_id);
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+create policy "Users can insert their own budgets"
+  on budgets for insert
+  with check (auth.uid() = user_id);
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Next Steps
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add database tables in Supabase
+- Create CRUD operations for your data
+- Add more authentication methods (OAuth, magic links)
+- Implement real-time subscriptions
+- Add user profile management
