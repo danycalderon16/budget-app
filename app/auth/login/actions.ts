@@ -31,10 +31,16 @@ export async function signup(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signUp(data)
+  const { data: authData, error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/auth/login?error=Could not create account')
+    console.error('Signup error:', error)
+    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
+  }
+
+  // Check if email confirmation is required
+  if (authData.user && !authData.session) {
+    redirect('/auth/login?message=Check your email to confirm your account')
   }
 
   revalidatePath('/', 'layout')

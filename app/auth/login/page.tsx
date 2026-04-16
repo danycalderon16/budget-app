@@ -1,6 +1,12 @@
 import { login, signup, signInWithGoogle } from './actions'
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>
+}) {
+  const params = await searchParams
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg dark:bg-zinc-900">
@@ -9,6 +15,23 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
         </div>
+
+        {/* Error/Success Messages */}
+        {params.error && (
+          <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+            <p className="text-sm text-red-800 dark:text-red-200">
+              {decodeURIComponent(params.error)}
+            </p>
+          </div>
+        )}
+        
+        {params.message && (
+          <div className="rounded-md bg-blue-50 p-4 dark:bg-blue-900/20">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              {decodeURIComponent(params.message)}
+            </p>
+          </div>
+        )}
 
         {/* Google Sign In */}
         <form>
